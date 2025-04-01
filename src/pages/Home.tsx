@@ -2,8 +2,6 @@ import React, { useEffect } from "react";
 import { useSpring, animated } from "@react-spring/web";
 import { createUseGesture, dragAction, pinchAction } from "@use-gesture/react";
 
-import styles from "./styles.module.css";
-
 const useGesture = createUseGesture([dragAction, pinchAction]);
 
 export default function App() {
