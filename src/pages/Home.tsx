@@ -28,6 +28,31 @@ export default function App() {
   }));
   const ref = React.useRef<HTMLDivElement>(null);
 
+  const styleWrap = {
+    position: "relative",
+    width: "fit-content",
+    height: "fit-content",
+    backgroundSize: "cover",
+    borderRadius: "5px",
+    boxShadow: "0px 10px 30px -5px rgba(0, 0, 0, 0.3)",
+    willChange: "transform",
+    border: "10px solid white",
+    cursor: "grab",
+    touchAction: "none",
+    userSelect: "none",
+    WebkitUserSelect: "none",
+    overflow: "hidden",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    fontWeight: "500",
+    fontSize: "22px",
+    padding: "20px",
+    textAlign: "center",
+    color: "#ffffffaa",
+  };
+
   useGesture(
     {
       // onHover: ({ active, event }) => console.log('hover', event, active),
@@ -64,12 +89,18 @@ export default function App() {
   );
 
   return (
-    <div className={`flex fill center ${styles.container}`}>
-      <animated.div
-        className={styles.card}
-        ref={ref}
-        style={style}
-      ></animated.div>
+    <div className={`flex fill center `} style={{ backgroundColor: "pink" }}>
+      <animated.div className={styleWrap} ref={ref} style={style}>
+        <img
+          src="https://cdn.shopify.com/s/files/1/0668/4970/2037/files/pro2-stand-rise.jpg?v=1742218261&w=1920&q=90"
+          alt="Draggable"
+          style={{
+            width: "200px", // 设置宽高
+            height: "200px",
+            userSelect: "none", // 禁止选中文本
+          }}
+        />
+      </animated.div>
     </div>
   );
 }
