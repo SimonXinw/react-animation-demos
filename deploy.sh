@@ -42,7 +42,7 @@ execute_with_retry() {
         else
             log "FAILURE: $cmd (Attempt $attempt/$max_attempts)" "$RED"
             ((attempt++))
-            sleep 2 # 等待 2 秒后重试
+            sleep 0.1 # 等待 2 秒后重试
         fi
     done
 
@@ -59,10 +59,12 @@ else
 fi
 
 # 2. 进入仓库目录
+log "Executing: cd $REPO_NAME" "$GREEN"
 cd "$REPO_NAME" || {
-    log "Failed to enter directory $REPO_NAME" "$RED"
+    log "ERROR:  Failed to enter directory $REPO_NAME" "$RED"
     exit 1
 }
+log "SUCCESS: cd $REPO_NAME" "$GREEN"
 
 # 3. 切换到 qa 分支
 execute_with_retry "git checkout qa"
