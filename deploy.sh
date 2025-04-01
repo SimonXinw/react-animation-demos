@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# 设置 Git 凭证缓存助手为 cache， 避免反复输入账号密码
+git config --global credential.helper cache
+
+# 设置 Git 凭证缓存的超时时间为 10 年（约 315360000 秒，这里你写的 360000000 秒也可以，接近 11 年）
+git config --global credential.helper "cache --timeout=315360000"
+
+echo "Git 凭证缓存已成功设置为约 10 年。"
+
 # 目标仓库
 REPO_URL="https://github.com/chendianWeprotalk/showroom-ui.git"
 REPO_NAME=$(basename -s .git "$REPO_URL") # 获取仓库名称
