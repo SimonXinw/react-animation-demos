@@ -24,6 +24,10 @@ log() {
     echo -e "${timestamp} - ${message}" >>"$LOG_FILE"
 }
 
+# 记录脚本开始时间
+START_TIME=$(date +%s%3N) # 以毫秒计时
+log "=== Script started ===" "$GREEN"
+
 # 执行命令，失败则终止并重试
 execute_with_retry() {
     local cmd="$1"
@@ -45,8 +49,6 @@ execute_with_retry() {
     log "ERROR: $cmd failed after $max_attempts attempts. Aborting." "$RED"
     exit 1
 }
-
-log "=== Script started ===" "$GREEN"
 
 # 1. 克隆仓库（如果不存在）
 if [[ ! -d "$REPO_NAME" ]]; then
@@ -79,4 +81,20 @@ log "Copying dist to $DEPLOY_DIR" "$GREEN"
 rm -rf "$DEPLOY_DIR/dist" # 先删除原 dist 目录
 cp -r dist "$DEPLOY_DIR/" # 复制新的 dist
 
-log "=== Script completed successfully ===" "$GREEN"
+# 计算总执行时间
+END_TIME=$(date +%s%3N)
+TOTAL_TIME_MS=$((END_TIME - START_TIME))
+
+if [[ $TOTAL_TIME_MS -lt 1000 ]]; then
+    TOTAL_TIME="$TOTAL_TIME_MS ms"
+elif [[ $TOTAL_TIME_MS -lt 60000 ]]; then
+    TOTAL_TIME="$((TOTAL_TIME_MS / 1000)) s"
+elif [[ $TOTAL_TIME_MS -lt 3600000 ]]; then
+    TOTAL_TIME="$((TOTAL_TIME_MS / 60000)) m"
+elif [[ $TOTAL_TIME_MS -lt 86400000 ]]; then
+    TOTAL_TIME="$((TOTAL_TIME_MS / 3600000)) h"
+else
+    TOTAL_TIME="$((TOTAL_TIME_MS / 86400000)) day"
+fi
+
+log "=== Script completed successfully in $TOTAL_TIME ===" "$GREEN"
