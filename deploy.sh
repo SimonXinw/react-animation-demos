@@ -31,6 +31,7 @@ log "=== Script started ===" "$GREEN"
 # 执行命令，失败则终止并重试
 execute_with_retry() {
     local cmd="$1"
+    local sleep_time="${2:-1}" # 默认等待 1 秒
     local attempt=1
     local max_attempts=3
 
@@ -42,7 +43,7 @@ execute_with_retry() {
         else
             log "FAILURE: $cmd (Attempt $attempt/$max_attempts)" "$RED"
             ((attempt++))
-            sleep 0.1 # 等待 2 秒后重试
+            sleep "$sleep_time" # 使用传入的等待时间
         fi
     done
 
@@ -59,12 +60,7 @@ else
 fi
 
 # 2. 进入仓库目录
-log "Executing: cd $REPO_NAME" "$GREEN"
-cd "$REPO_NAME" || {
-    log "ERROR:  Failed to enter directory $REPO_NAME" "$RED"
-    exit 1
-}
-log "SUCCESS: cd $REPO_NAME" "$GREEN"
+execute_with_retry "cd $REPO_NAME"  0
 
 # 3. 切换到 qa 分支
 execute_with_retry "git checkout qa"
