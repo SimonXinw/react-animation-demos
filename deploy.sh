@@ -90,11 +90,20 @@ if [[ $TOTAL_TIME_MS -lt 1000 ]]; then
 elif [[ $TOTAL_TIME_MS -lt 60000 ]]; then
     TOTAL_TIME="$((TOTAL_TIME_MS / 1000)) s"
 elif [[ $TOTAL_TIME_MS -lt 3600000 ]]; then
-    TOTAL_TIME="$((TOTAL_TIME_MS / 60000)) m"
+    SECONDS=$((TOTAL_TIME_MS / 1000 % 60))
+    MINUTES=$((TOTAL_TIME_MS / 60000))
+    TOTAL_TIME="${MINUTES}m ${SECONDS}s"
 elif [[ $TOTAL_TIME_MS -lt 86400000 ]]; then
-    TOTAL_TIME="$((TOTAL_TIME_MS / 3600000)) h"
+    SECONDS=$((TOTAL_TIME_MS / 1000 % 60))
+    MINUTES=$((TOTAL_TIME_MS / 60000 % 60))
+    HOURS=$((TOTAL_TIME_MS / 3600000))
+    TOTAL_TIME="${HOURS}h ${MINUTES}m ${SECONDS}s"
 else
-    TOTAL_TIME="$((TOTAL_TIME_MS / 86400000)) day"
+    SECONDS=$((TOTAL_TIME_MS / 1000 % 60))
+    MINUTES=$((TOTAL_TIME_MS / 60000 % 60))
+    HOURS=$((TOTAL_TIME_MS / 3600000 % 24))
+    DAYS=$((TOTAL_TIME_MS / 86400000))
+    TOTAL_TIME="${DAYS}d ${HOURS}h ${MINUTES}m ${SECONDS}s"
 fi
 
 log "=== Script completed successfully in $TOTAL_TIME ===" "$GREEN"
