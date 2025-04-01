@@ -60,7 +60,7 @@ else
 fi
 
 # 2. 进入仓库目录
-execute_with_retry "cd $REPO_NAME"  0
+execute_with_retry "cd $REPO_NAME" 0
 
 # 3. 切换到 qa 分支
 execute_with_retry "git checkout qa"
@@ -72,11 +72,7 @@ execute_with_retry "git pull"
 execute_with_retry "npm install"
 
 # 6. 构建项目（失败后尝试 npm run build:linux）
-log "Building project..." "$GREEN"
-if ! execute_with_retry "npm run build"; then
-    log "Build failed, trying npm run build:linux..." "$RED"
-    execute_with_retry "npm run build:linux"
-fi
+execute_with_retry "npm run build:linux"
 
 # 7. 复制 dist 目录到 deploy.sh 所在目录（覆盖已有的 dist）
 log "Copying dist to $DEPLOY_DIR" "$GREEN"
