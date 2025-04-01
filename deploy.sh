@@ -10,19 +10,24 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m' # 无颜色
 
-# 记录日志
+# 记录日志（终端彩色，文件无颜色）
 log() {
     local message="$1"
     local color="$2"
     local timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
-    echo -e "${color}${timestamp} - ${message}${NC}" | tee -a "$LOG_FILE"
+
+    # 终端打印彩色
+    echo -e "${color}${timestamp} - ${message}${NC}"
+
+    # 记录到文件（去掉颜色）
+    echo -e "${timestamp} - ${message}" >>"$LOG_FILE"
 }
 
-# 执行命令，失败则终止整个流程并重试
+# 执行命令，失败则终止并重试
 execute_with_retry() {
     local cmd="$1"
-    local attempt=0
-    local max_attempts=2
+    local attempt=1
+    local max_attempts=3
 
     while [[ $attempt -le $max_attempts ]]; do
         log "Executing: $cmd" "$GREEN"
@@ -30,11 +35,12 @@ execute_with_retry() {
             log "SUCCESS: $cmd" "$GREEN"
             return 0
         else
-            log "FAILURE: $cmd (Attempt $((attempt + 1))/$max_attempts)" "$RED"
+            log "FAILURE: $cmd (Attempt $attempt/$max_attempts)" "$RED"
             ((attempt++))
-            sleep 1 # 等待2秒后重试
+            sleep 2 # 等待 2 秒后重试
         fi
     done
+
     log "ERROR: $cmd failed after $max_attempts attempts. Aborting." "$RED"
     exit 1
 }
