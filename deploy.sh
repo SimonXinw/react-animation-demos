@@ -2,8 +2,9 @@
 
 # 目标仓库
 REPO_URL="https://github.com/chendianWeprotalk/showroom-ui.git"
-REPO_NAME=$(basename -s .git $REPO_URL) # 获取仓库名称
+REPO_NAME=$(basename -s .git "$REPO_URL") # 获取仓库名称
 LOG_FILE="$(pwd)/shell_log.txt"
+DEPLOY_DIR="$(pwd)" # deploy.sh 所在目录
 
 # 颜色输出
 GREEN='\033[0;32m'
@@ -72,5 +73,10 @@ execute_with_retry "npm install"
 
 # 6. 构建项目
 execute_with_retry "npm run build"
+
+# 7. 复制 dist 目录到 deploy.sh 所在目录（覆盖已有的 dist）
+log "Copying dist to $DEPLOY_DIR" "$GREEN"
+rm -rf "$DEPLOY_DIR/dist" # 先删除原 dist 目录
+cp -r dist "$DEPLOY_DIR/" # 复制新的 dist
 
 log "=== Script completed successfully ===" "$GREEN"
