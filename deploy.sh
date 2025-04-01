@@ -71,8 +71,12 @@ execute_with_retry "git pull"
 # 5. 安装依赖
 execute_with_retry "npm install"
 
-# 6. 构建项目
-execute_with_retry "npm run build"
+# 6. 构建项目（失败后尝试 npm run build:linux）
+log "Building project..." "$GREEN"
+if ! execute_with_retry "npm run build"; then
+    log "Build failed, trying npm run build:linux..." "$RED"
+    execute_with_retry "npm run build:linux"
+fi
 
 # 7. 复制 dist 目录到 deploy.sh 所在目录（覆盖已有的 dist）
 log "Copying dist to $DEPLOY_DIR" "$GREEN"
