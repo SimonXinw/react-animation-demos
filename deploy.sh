@@ -8,8 +8,27 @@ git config --global credential.helper "cache --timeout=315360000"
 
 echo "Git 凭证缓存已成功设置为约 10 年。"
 
-# 目标仓库
-REPO_URL="git@github.com:chendianWeprotalk/showroom-ui.git"
+# 检测系统类型，默认返回 linux
+detect_os() {
+    case "$(uname -s)" in
+    Linux*) echo "linux" ;;
+    Darwin*) echo "mac" ;;
+    CYGWIN* | MINGW* | MSYS*) echo "windows" ;;
+    *) echo "linux" ;; # 默认返回 linux
+    esac
+}
+
+# 调用检测系统类型
+OS_TYPE=$(detect_os)
+
+# 目标仓库 根据操作系统设置 REPO_URL
+if [[ "$OS_TYPE" == "Linux" || "$OS_TYPE" == "Darwin" ]]; then
+    REPO_URL="git@github.com:chendianWeprotalk/showroom-ui.git"
+else
+    REPO_URL="https://github.com/chendianWeprotalk/showroom-ui.git"
+fi
+
+echo "使用的仓库地址: $REPO_URL"
 REPO_NAME=$(basename -s .git "$REPO_URL") # 获取仓库名称
 LOG_FILE="$(pwd)/shell_log.txt"
 DEPLOY_DIR="$(pwd)" # deploy.sh 所在目录
@@ -79,8 +98,12 @@ execute_with_retry "git pull"
 # 5. 安装依赖
 execute_with_retry "npm install"
 
-# 6. 构建项目（失败后尝试 npm run build:linux）
-execute_with_retry "npm run build:linux"
+# 6. 构建项目
+if [[ "$OS_TYPE" == "windows" ]]; then
+    execute_with_retry "npm run build"
+else
+    execute_with_retry "npm run build:linux"
+fi
 
 # 7. 复制 dist 目录到 deploy.sh 所在目录（覆盖已有的 dist）
 log "Copying dist to $DEPLOY_DIR" "$GREEN"
