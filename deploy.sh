@@ -41,7 +41,7 @@ log() {
 OS_TYPE=$(detect_os)
 
 # 目标仓库 根据操作系统设置 REPO_URL
-if [[ "$OS_TYPE" == "Linux" || "$OS_TYPE" == "Darwin" ]]; then
+if [[ "$OS_TYPE" == "linux" || "$OS_TYPE" == "mac" ]]; then
     REPO_URL="git@github.com:chendianWeprotalk/showroom-ui.git"
 else
     REPO_URL="https://github.com/chendianWeprotalk/showroom-ui.git"
