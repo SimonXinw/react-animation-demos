@@ -9,7 +9,7 @@ git config --global credential.helper "cache --timeout=315360000"
 echo "Git 凭证缓存已成功设置为约 10 年。"
 
 # 目标仓库
-REPO_URL="https://github.com/chendianWeprotalk/showroom-ui.git"
+REPO_URL="git@github.com:chendianWeprotalk/showroom-ui.git"
 REPO_NAME=$(basename -s .git "$REPO_URL") # 获取仓库名称
 LOG_FILE="$(pwd)/shell_log.txt"
 DEPLOY_DIR="$(pwd)" # deploy.sh 所在目录
