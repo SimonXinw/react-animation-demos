@@ -1,9 +1,12 @@
 #!/bin/bash
 
+# 获取 deploy.sh 所在的绝对路径
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
 # 设置 Git 凭证缓存助手为 cache， 避免反复输入账号密码
 git config --global credential.helper cache
 
-# 设置 Git 凭证缓存的超时时间为 10 年（约 315360000 秒，这里你写的 360000000 秒也可以，接近 11 年）
+# 设置 Git 凭证缓存的超时时间为 10 年（约 315360000 秒）
 git config --global credential.helper "cache --timeout=315360000"
 
 echo "Git 凭证缓存已成功设置为约 10 年。"
@@ -18,7 +21,7 @@ detect_os() {
     esac
 }
 
-LOG_FILE="$(pwd)/shell_log.txt"
+LOG_FILE="$SCRIPT_DIR/shell_log.txt"
 
 # 颜色输出
 GREEN='\033[0;32m'
@@ -50,7 +53,9 @@ fi
 log "使用的仓库地址: $REPO_URL" "$GREEN"
 
 REPO_NAME=$(basename -s .git "$REPO_URL") # 获取仓库名称
-DEPLOY_DIR="$(pwd)"                       # deploy.sh 所在目录
+
+# 设置克隆的目标目录为脚本所在目录
+CLONE_DIR="$SCRIPT_DIR/$REPO_NAME"
 
 # 记录脚本开始时间
 START_TIME=$(date +%s%3N) # 以毫秒计时
@@ -79,16 +84,21 @@ execute_with_retry() {
     exit 1
 }
 
+# 切换到脚本所在目录
+log "切换到脚本所在目录: $SCRIPT_DIR" "$GREEN"
+cd "$SCRIPT_DIR" || execute_with_retry "cd \"$SCRIPT_DIR\""
+
 # 1. 克隆仓库（如果不存在）
 if [[ ! -d "$REPO_NAME" ]]; then
-    log "Cloning repository: $REPO_URL" "$GREEN"
-    execute_with_retry "git clone $REPO_URL"
+    log "Cloning repository: $REPO_URL into $CLONE_DIR" "$GREEN"
+    execute_with_retry "git clone \"$REPO_URL\" \"$CLONE_DIR\""
 else
     log "Repository already exists: $REPO_NAME" "$GREEN"
 fi
 
 # 2. 进入仓库目录
-execute_with_retry "cd $REPO_NAME" 0
+log "进入仓库目录: $CLONE_DIR" "$GREEN"
+cd "$CLONE_DIR" || execute_with_retry "cd \"$CLONE_DIR\""
 
 # 3. 切换到 qa 分支
 execute_with_retry "git checkout qa"
@@ -107,9 +117,10 @@ else
 fi
 
 # 7. 复制 dist 目录到 deploy.sh 所在目录（覆盖已有的 dist）
-log "Copying dist to $DEPLOY_DIR" "$GREEN"
-rm -rf "$DEPLOY_DIR/dist" # 先删除原 dist 目录
-cp -r dist "$DEPLOY_DIR/" # 复制新的 dist
+DIST_SRC="$CLONE_DIR/dist"
+log "Copying dist from $DIST_SRC to $SCRIPT_DIR" "$GREEN"
+rm -rf "$SCRIPT_DIR/dist"        # 先删除原 dist 目录
+cp -r "$DIST_SRC" "$SCRIPT_DIR/" # 复制新的 dist
 
 # 计算总执行时间
 END_TIME=$(date +%s%3N)
