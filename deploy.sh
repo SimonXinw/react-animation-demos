@@ -18,26 +18,12 @@ detect_os() {
     esac
 }
 
-# 调用检测系统类型
-OS_TYPE=$(detect_os)
-
-# 目标仓库 根据操作系统设置 REPO_URL
-if [[ "$OS_TYPE" == "Linux" || "$OS_TYPE" == "Darwin" ]]; then
-    REPO_URL="git@github.com:chendianWeprotalk/showroom-ui.git"
-else
-    REPO_URL="https://github.com/chendianWeprotalk/showroom-ui.git"
-fi
-
-echo "使用的仓库地址: $REPO_URL"
-REPO_NAME=$(basename -s .git "$REPO_URL") # 获取仓库名称
 LOG_FILE="$(pwd)/shell_log.txt"
-DEPLOY_DIR="$(pwd)" # deploy.sh 所在目录
 
 # 颜色输出
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m' # 无颜色
-
 # 记录日志（终端彩色，文件无颜色）
 log() {
     local message="$1"
@@ -50,6 +36,21 @@ log() {
     # 记录到文件（去掉颜色）
     echo -e "${timestamp} - ${message}" >>"$LOG_FILE"
 }
+
+# 调用检测系统类型
+OS_TYPE=$(detect_os)
+
+# 目标仓库 根据操作系统设置 REPO_URL
+if [[ "$OS_TYPE" == "Linux" || "$OS_TYPE" == "Darwin" ]]; then
+    REPO_URL="git@github.com:chendianWeprotalk/showroom-ui.git"
+else
+    REPO_URL="https://github.com/chendianWeprotalk/showroom-ui.git"
+fi
+
+log "使用的仓库地址: $REPO_URL" "$GREEN"
+
+REPO_NAME=$(basename -s .git "$REPO_URL") # 获取仓库名称
+DEPLOY_DIR="$(pwd)"                       # deploy.sh 所在目录
 
 # 记录脚本开始时间
 START_TIME=$(date +%s%3N) # 以毫秒计时
