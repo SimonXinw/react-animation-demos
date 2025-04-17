@@ -46,7 +46,13 @@ foreach ($row in $data) {
         Write-Host "Property Name: $($_.Name), Value: $($_.Value)"
     }
 
-    $url = $row.PSObject.Properties[4].Value -replace '^\s+|\s+$', ''  # Trim 第5列
+    $url = $row.PSObject.Properties[4].Value  # Trim 第5列
+
+    # 检查原始值
+    Write-Host "Raw Value: '$($row.PSObject.Properties[4].Value)'" -ForegroundColor Cyan
+
+    # 使用正则去除所有的空白字符
+    $url = $row.PSObject.Properties[4].Value -replace '\s+', ''
 
     # 打印当前 URL
     $urlMsg = "Processing URL: $url"
