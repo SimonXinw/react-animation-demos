@@ -1,8 +1,6 @@
-// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./src/**/*.{html,js,jsx,ts,tsx}", // 根据你的项目文件结构修改路径
-  ],
+  content: ["./src/**/*.{html,js}"],
   theme: {
     extend: {},
   },

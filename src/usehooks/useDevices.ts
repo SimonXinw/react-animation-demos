@@ -1,16 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 
+export interface BrowserInfoType {
+  isSamsung: boolean;
+  isSafari: boolean;
+  isChrome: boolean;
+  isMobile: boolean;
+  isDesktop: boolean;
+  screenWidth: number;
+  screenHeight: number;
+}
+
 // 使用 useState 的版本
-export function useBrowserInfoState() {
-  const [browserInfo, setBrowserInfo] = useState<{
-    isSamsung: boolean;
-    isSafari: boolean;
-    isChrome: boolean;
-    isMobile: boolean;
-    isDesktop: boolean;
-    screenWidth: number;
-    screenHeight: number;
-  }>({
+export function useBrowserInfoState(): BrowserInfoType {
+  const [browserInfo, setBrowserInfo] = useState<BrowserInfoType>({
     isSamsung: false,
     isSafari: false,
     isChrome: false,
@@ -56,16 +58,8 @@ export function useBrowserInfoState() {
 }
 
 // 使用 useRef 的版本
-export function useBrowserInfoRef() {
-  const browserInfoRef = useRef<{
-    isSamsung: boolean;
-    isSafari: boolean;
-    isChrome: boolean;
-    isMobile: boolean;
-    isDesktop: boolean;
-    screenWidth: number;
-    screenHeight: number;
-  }>({
+export function useBrowserInfoRef(): BrowserInfoType {
+  const browserInfoRef = useRef<BrowserInfoType>({
     isSamsung: false,
     isSafari: false,
     isChrome: false,

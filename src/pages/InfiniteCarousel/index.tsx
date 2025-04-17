@@ -1,6 +1,8 @@
 "use client";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
+import { useBrowserInfoState } from "../../usehooks/useDevices";
+import { OnlyMobile } from "../../theme/utils";
 
 export interface CarouselImageType {
   src: string;
@@ -9,7 +11,11 @@ export interface CarouselImageType {
   height?: number;
 }
 
-export const IconsCarousel = ({ images }: { images?: CarouselImageType[] }) => {
+export const InfiniteCarousel = ({
+  images,
+}: {
+  images?: CarouselImageType[];
+}) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
   const startX = useRef(0);
@@ -17,6 +23,7 @@ export const IconsCarousel = ({ images }: { images?: CarouselImageType[] }) => {
   const userInteracting = useRef(false);
   const [listWidth, setListWidth] = useState(0);
   const [isInView, setIsInView] = useState(false);
+  const { isMobile } = useBrowserInfoState();
 
   const gap = isMobile ? 24 : 72;
   const size = isMobile ? 60 : 80;
@@ -164,7 +171,7 @@ export const IconsCarousel = ({ images }: { images?: CarouselImageType[] }) => {
             height={size}
             width="auto"
             {...image}
-            style={{ flexShrink: 0, pointerEvents: "none" }}
+            style={{ flexShrink: 0, pointerEvents: "none", height: size }}
           />
         ))}
       </div>
@@ -175,7 +182,7 @@ export const IconsCarousel = ({ images }: { images?: CarouselImageType[] }) => {
             height={size}
             width="auto"
             {...image}
-            style={{ flexShrink: 0, pointerEvents: "none" }}
+            style={{ flexShrink: 0, pointerEvents: "none", height: size }}
           />
         ))}
       </div>
@@ -192,6 +199,9 @@ const ScrollWrapper = styled.div<{ $gap: number }>`
   -webkit-overflow-scrolling: touch;
   padding-top: 40px;
   padding-left: calc(50% - 720px);
+  ${OnlyMobile} {
+    padding-left: 16px;
+  }
   cursor: grab;
   user-select: none;
 
@@ -201,9 +211,5 @@ const ScrollWrapper = styled.div<{ $gap: number }>`
 
   &::-webkit-scrollbar {
     display: none;
-  }
-
-  ${OnlyMobile} {
-    padding-left: 16px;
   }
 `;

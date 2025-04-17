@@ -1,7 +1,6 @@
-// postcss.config.mjs
-export default {
+module.exports = {
   plugins: {
-    "@tailwindcss/postcss": {}, // 修正插件名为 @tailwindcss/postcss
+    "@tailwindcss/postcss": {}, // ✅ 新插件名称
     autoprefixer: {},
   },
 };
