@@ -26,7 +26,7 @@ $readStartMsg = "Start reading Excel: $excelPath"
 Write-Host $readStartMsg -ForegroundColor Cyan
 Add-Content -Path $logPath -Value $readStartMsg
 
-# 读取 Excel 第一个 Sheet 的第 5 列
+# 读取 Excel 第一个 Sheet 的数据
 $data = Import-Excel -Path $excelPath -WorksheetName (Get-ExcelSheetInfo -Path $excelPath)[0].Name
 
 # 打印并记录读取成功
@@ -41,21 +41,18 @@ $failCount = 0
 
 # 遍历每一行
 foreach ($row in $data) {
-    # 打印每一行的所有属性
-    $row.PSObject.Properties | ForEach-Object {
-        Write-Host "Property Name: $($_.Name), Value: $($_.Value)"
-    }
-
-    $url = $row.PSObject.Properties[4].Value  # Trim 第5列
+    # 转换为数组并访问第五列
+    $array = $row.PSObject.Properties.Value
+    $url = $array[4]  # 索引 4 对应第 5 列
 
     # 检查原始值
-    Write-Host "Raw Value: '$($row.PSObject.Properties[4].Value)'" -ForegroundColor Cyan
+    Write-Host "Raw url value: '$($url)'" -ForegroundColor Cyan
 
     # 使用正则去除所有的空白字符
-    $url = $row.PSObject.Properties[4].Value -replace '\s+', ''
+    $url = $url -replace '\s+', ''
 
     # 打印当前 URL
-    $urlMsg = "Processing URL: $url"
+    $urlMsg = "Downloading URL: $url"
     Write-Host $urlMsg -ForegroundColor Yellow
     Add-Content -Path $logPath -Value $urlMsg
 
@@ -64,10 +61,14 @@ foreach ($row in $data) {
         Add-Content -Path $logPath -Value "Downloading: $url"
 
         try {
+            # 获取文件扩展名并默认使用 .jpg
             $ext = [System.IO.Path]::GetExtension($url).Split('?')[0]
-            if (-not $ext) { $ext = ".jpg" }  # 如果没有扩展名，默认用 .jpg
+            if (-not $ext) { $ext = ".jpg" }
+
+            # 定义文件保存路径
             $fileName = Join-Path $outputDir "$index$ext"
 
+            # 下载文件
             Invoke-WebRequest -Uri $url -OutFile $fileName -UseBasicParsing -ErrorAction Stop
 
             Write-Host "Downloaded: $fileName" -ForegroundColor Green
