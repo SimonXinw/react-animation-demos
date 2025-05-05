@@ -42,6 +42,10 @@ export function useBrowserInfoState(): BrowserInfoType {
       screenWidth <= 768;
     const isDesktop = !isMobile; // 互斥
 
+    // 操作系统检测（互斥）
+    const isIOS = /iPhone|iPad|iPod/i.test(userAgent);
+    const isAndroid = /Android/i.test(userAgent) && !isIOS;
+
     // 更新状态
     setBrowserInfo({
       isSamsung,
@@ -49,6 +53,8 @@ export function useBrowserInfoState(): BrowserInfoType {
       isChrome,
       isMobile,
       isDesktop,
+      isIOS,
+      isAndroid,
       screenWidth,
       screenHeight,
     });
