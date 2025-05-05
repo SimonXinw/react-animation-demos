@@ -95,6 +95,10 @@ export function useBrowserInfoRef(): BrowserInfoType {
       screenWidth <= 768;
     const isDesktop = !isMobile; // 互斥
 
+    // 操作系统检测（互斥）
+    const isIOS = /iPhone|iPad|iPod/i.test(userAgent);
+    const isAndroid = /Android/i.test(userAgent) && !isIOS;
+
     // 更新 ref 的值
     browserInfoRef.current = {
       isSamsung,
@@ -102,6 +106,8 @@ export function useBrowserInfoRef(): BrowserInfoType {
       isChrome,
       isMobile,
       isDesktop,
+      isIOS,
+      isAndroid,
       screenWidth,
       screenHeight,
     };
