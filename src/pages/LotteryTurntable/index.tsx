@@ -43,7 +43,8 @@ export function LotteryTurntable() {
 
     setTimeout(() => {
       // 计算最终指向角度（相对360）
-      const finalAngle = (rotation + targetRotation) % 360;
+      const finalAngle = (rotation + targetRotation + 90 + 360) % 360;
+
       // 计算奖品索引：指针在 12 点方向，对应转盘区域的反方向
       const index = Math.floor(
         ((360 - finalAngle + anglePerPrize / 2) % 360) / anglePerPrize
