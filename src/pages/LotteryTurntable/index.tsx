@@ -42,7 +42,6 @@ export function LotteryTurntable() {
     if (spinning) return;
     setSpinning(true);
     setWinner(null);
-    // 随机目标索引
     const targetIndex = Math.floor(Math.random() * prizes.length);
     const realPrize = prizes[targetIndex];
     const anglePerPrize = 360 / prizes.length;
@@ -50,11 +49,12 @@ export function LotteryTurntable() {
     const extraRounds = 5;
     const finalRotation =
       extraRounds * 360 + (360 - prizeMiddleDegree + 90 + 180);
-    setRotation(finalRotation); // <==== 必须这样直接赋值，不能累计
+    setRotation(finalRotation);
     setTimeout(() => {
       setWinner(realPrize);
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
       setSpinning(false);
+      setTimeout(() => setRotation(0), 500);
     }, 4000);
   };
 
