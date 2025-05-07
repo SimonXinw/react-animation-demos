@@ -33,14 +33,24 @@ export function LotteryTurntable() {
   const handleSpin = () => {
     if (spinning) return;
     setSpinning(true);
-    const prizeIndex = Math.floor(Math.random() * prizes.length);
     setWinner(null);
-    const newRotation =
-      360 * 5 + (prizeIndex * anglePerPrize + anglePerPrize / 2);
-    setRotation((prev) => prev + newRotation);
+
+    const extraSpins = 5; // 多转几圈
+    const randomOffset = Math.random() * 360;
+    const targetRotation = extraSpins * 360 + randomOffset;
+
+    setRotation((prev) => prev + targetRotation);
 
     setTimeout(() => {
-      setWinner(prizes[prizeIndex]);
+      // 计算最终指向角度（相对360）
+      const finalAngle = (rotation + targetRotation) % 360;
+      // 计算奖品索引：指针在 12 点方向，对应转盘区域的反方向
+      const index = Math.floor(
+        ((360 - finalAngle + anglePerPrize / 2) % 360) / anglePerPrize
+      );
+      const realPrize = prizes[index];
+
+      setWinner(realPrize);
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
       setSpinning(false);
     }, 4000);
@@ -77,8 +87,7 @@ export function LotteryTurntable() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="relative">
             {/* 指针向下 */}
-            <div className="absolute bottom-[-40px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-t-[30px] border-l-transparent border-r-transparent border-t-red-600 z-10" />
-
+            <div className="absolute top-[8px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-t-[30px] border-l-transparent border-r-transparent border-t-red-600 z-10" />
             {/* 转盘 */}
             <motion.svg
               animate={{ rotate: rotation }}
