@@ -22,6 +22,7 @@ export function LotteryTurntable() {
   const [showWheel, setShowWheel] = useState<boolean>(false);
   // 修正版本
   const [rotation, setRotation] = useState<number>(0);
+  const [rotationInstant, setRotationInstant] = useState<boolean>(false);
   const [spinning, setSpinning] = useState<boolean>(false);
   const [btnPosition, setBtnPosition] = useState<{ x: number; y: number }>({
     x: 20,
@@ -54,7 +55,12 @@ export function LotteryTurntable() {
       setWinner(realPrize);
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
       setSpinning(false);
-      setTimeout(() => setRotation(0), 500);
+      setTimeout(() => {
+        setRotationInstant(true);
+        setRotation(0);
+        // 并在非常短时间（如50ms）后再关掉瞬移标记，方便下次又有动画
+        setTimeout(() => setRotationInstant(false), 50);
+      }, 500);
     }, 4000);
   };
 
@@ -139,7 +145,11 @@ export function LotteryTurntable() {
             {/* 转盘SVG */}
             <motion.svg
               animate={{ rotate: rotation }}
-              transition={{ duration: 4, ease: "easeInOut" }}
+              transition={
+                rotationInstant
+                  ? { duration: 0 }
+                  : { duration: 4, ease: "easeInOut" }
+              }
               width={center * 2}
               height={center * 2}
             >
