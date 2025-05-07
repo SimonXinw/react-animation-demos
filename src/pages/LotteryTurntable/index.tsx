@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
+import confetti from "canvas-confetti";
 
 const prizes = Array.from({ length: 12 }, (_, i) => `奖品${i + 1}`);
 const colors = [
@@ -22,8 +23,8 @@ export function LotteryTurntable() {
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
   const [btnPosition, setBtnPosition] = useState({ x: 20, y: 300 });
+  const [winner, setWinner] = useState(null);
   const btnRef = useRef(null);
-  const dragStartY = useRef(0);
 
   const radius = 150;
   const center = radius + 10;
@@ -33,10 +34,16 @@ export function LotteryTurntable() {
     if (spinning) return;
     setSpinning(true);
     const prizeIndex = Math.floor(Math.random() * prizes.length);
+    setWinner(null);
     const newRotation =
-      360 * 5 + (360 - prizeIndex * anglePerPrize - anglePerPrize / 2);
+      360 * 5 + (prizeIndex * anglePerPrize + anglePerPrize / 2);
     setRotation((prev) => prev + newRotation);
-    setTimeout(() => setSpinning(false), 4000);
+
+    setTimeout(() => {
+      setWinner(prizes[prizeIndex]);
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      setSpinning(false);
+    }, 4000);
   };
 
   const handleDragEnd = (_, info) => {
@@ -44,7 +51,6 @@ export function LotteryTurntable() {
   };
 
   useEffect(() => {
-    // Snap to nearest Y axis position
     const snapY = Math.max(
       20,
       Math.min(window.innerHeight - 80, btnPosition.y)
@@ -70,15 +76,15 @@ export function LotteryTurntable() {
       {showWheel && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="relative">
-            {/* 指针 */}
-            <div className="absolute top-[-40px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-b-[30px] border-l-transparent border-r-transparent border-b-red-600 z-10" />
+            {/* 指针向下 */}
+            <div className="absolute bottom-[-40px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-t-[30px] border-l-transparent border-r-transparent border-t-red-600 z-10" />
 
-            {/* 大转盘 */}
-            <svg
+            {/* 转盘 */}
+            <motion.svg
+              animate={{ rotate: rotation }}
+              transition={{ duration: 4, ease: "easeInOut" }}
               width={center * 2}
               height={center * 2}
-              className="rotate-animation"
-              style={{ transform: `rotate(${rotation}deg)` }}
             >
               <g transform={`translate(${center},${center})`}>
                 {prizes.map((text, i) => {
@@ -94,9 +100,9 @@ export function LotteryTurntable() {
 
                   const angle = (startAngle + endAngle) / 2;
                   const textX =
-                    0.6 * radius * Math.cos((angle * Math.PI) / 180);
+                    0.7 * radius * Math.cos((angle * Math.PI) / 180);
                   const textY =
-                    0.6 * radius * Math.sin((angle * Math.PI) / 180);
+                    0.7 * radius * Math.sin((angle * Math.PI) / 180);
 
                   return (
                     <g key={i}>
@@ -109,18 +115,18 @@ export function LotteryTurntable() {
                       <text
                         x={textX}
                         y={textY}
-                        transform={`rotate(${angle}, ${textX}, ${textY})`}
+                        transform={`rotate(${angle + 90}, ${textX}, ${textY})`}
                         textAnchor="middle"
                         alignmentBaseline="middle"
-                        style={{ writingMode: "vertical-rl", fontSize: 14 }}
+                        style={{ fontSize: 14 }}
                       >
-                        {text}
+                        {text.split("").join("\n")}
                       </text>
                     </g>
                   );
                 })}
               </g>
-            </svg>
+            </motion.svg>
 
             {/* 中心按钮 */}
             <div
@@ -139,6 +145,12 @@ export function LotteryTurntable() {
           >
             ×
           </button>
+
+          {winner && (
+            <div className="absolute bottom-10 bg-white px-4 py-2 rounded text-red-600 font-bold shadow-xl">
+              恭喜你抽中：{winner}
+            </div>
+          )}
         </div>
       )}
     </>
