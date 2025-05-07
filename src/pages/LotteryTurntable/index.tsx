@@ -1,132 +1,146 @@
-import React, { useRef, useState, useEffect } from "react";
-import { createPortal } from "react-dom";
-import "./SpinWheel.css";
+import React, { useState, useRef, useEffect } from "react";
+import { motion } from "framer-motion";
 
-const prizes = [
-  "一等奖",
-  "二等奖",
-  "三等奖",
-  "谢谢参与",
-  "再接再厉",
-  "幸运奖",
-  "神秘奖",
-  "四等奖",
-  "五等奖",
-  "六等奖",
-  "特别奖",
-  "再试一次",
+const prizes = Array.from({ length: 12 }, (_, i) => `奖品${i + 1}`);
+const colors = [
+  "#FF8A80",
+  "#FFD180",
+  "#FFFF8D",
+  "#CCFF90",
+  "#A7FFEB",
+  "#80D8FF",
+  "#82B1FF",
+  "#B388FF",
+  "#F8BBD0",
+  "#D1C4E9",
+  "#C5E1A5",
+  "#FFAB91",
 ];
 
-export const LotteryTurntable = () => {
-  const [visible, setVisible] = useState(false);
-  const [dragPos, setDragPos] = useState({
-    x: 20,
-    y: window.innerHeight - 100,
-  });
-  const [dragging, setDragging] = useState(false);
-  const [angle, setAngle] = useState(0);
+export function LotteryTurntable() {
+  const [showWheel, setShowWheel] = useState(false);
+  const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
-  const dragRef: any = useRef(null);
+  const [btnPosition, setBtnPosition] = useState({ x: 20, y: 300 });
+  const btnRef = useRef(null);
+  const dragStartY = useRef(0);
 
-  const handleMouseDown = (e: any) => {
-    setDragging(true);
-    dragRef.current.startX = e.clientX;
-    dragRef.current.startY = e.clientY;
-    dragRef.current.startPos = { ...dragPos };
+  const radius = 150;
+  const center = radius + 10;
+  const anglePerPrize = 360 / prizes.length;
+
+  const handleSpin = () => {
+    if (spinning) return;
+    setSpinning(true);
+    const prizeIndex = Math.floor(Math.random() * prizes.length);
+    const newRotation =
+      360 * 5 + (360 - prizeIndex * anglePerPrize - anglePerPrize / 2);
+    setRotation((prev) => prev + newRotation);
+    setTimeout(() => setSpinning(false), 4000);
   };
 
-  const handleMouseMove = (e: any) => {
-    if (!dragging) return;
-    const dx = e.clientX - dragRef.current.startX;
-    const dy = e.clientY - dragRef.current.startY;
-    setDragPos({
-      x: dragRef.current.startPos.x + dx,
-      y: dragRef.current.startPos.y + dy,
-    });
-  };
-
-  const handleMouseUp = () => {
-    if (!dragging) return;
-    setDragging(false);
-    const snapX =
-      dragPos.x < window.innerWidth / 2 ? 20 : window.innerWidth - 80;
-    setDragPos({ x: snapX, y: dragPos.y });
+  const handleDragEnd = (_, info) => {
+    setBtnPosition((pos) => ({ x: pos.x, y: info.point.y }));
   };
 
   useEffect(() => {
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-    };
-  });
-
-  const startSpin = () => {
-    if (spinning) return;
-
-    const winner = Math.floor(Math.random() * prizes.length);
-    const anglePerSegment = 360 / prizes.length;
-    const rotateTo =
-      360 * 5 + (360 - winner * anglePerSegment - anglePerSegment / 2);
-
-    setSpinning(true);
-    setAngle(rotateTo);
-
-    setTimeout(() => {
-      setSpinning(false);
-      alert(`恭喜你抽中了：${prizes[winner]}`);
-    }, 5000); // 动画时长一致
-  };
+    // Snap to nearest Y axis position
+    const snapY = Math.max(
+      20,
+      Math.min(window.innerHeight - 80, btnPosition.y)
+    );
+    setBtnPosition((pos) => ({ ...pos, y: snapY }));
+  }, [btnPosition.x]);
 
   return (
     <>
-      <div
-        className="spin-button"
-        style={{ left: dragPos.x, top: dragPos.y }}
-        onMouseDown={handleMouseDown}
-        onClick={() => setVisible(true)}
-        ref={dragRef}
+      <motion.div
+        className="fixed w-16 h-16 rounded-full bg-red-500 text-white flex items-center justify-center z-50 cursor-pointer"
+        style={{ left: btnPosition.x, top: btnPosition.y }}
+        drag
+        dragMomentum={false}
+        dragElastic={0}
+        ref={btnRef}
+        onDragEnd={handleDragEnd}
+        onClick={() => setShowWheel(true)}
       >
         抽奖
-      </div>
+      </motion.div>
 
-      {visible &&
-        createPortal(
-          <div className="modal-overlay" onClick={() => setVisible(false)}>
-            <div className="wheel-wrapper" onClick={(e) => e.stopPropagation()}>
-              <div
-                className="wheel"
-                style={{
-                  transform: `rotate(${angle}deg)`,
-                  transition: spinning
-                    ? "transform 5s cubic-bezier(0.33, 1, 0.68, 1)"
-                    : "none",
-                }}
-              >
-                {prizes.map((text, i) => (
-                  <div
-                    key={i}
-                    className="segment"
-                    style={{
-                      transform: `rotate(${i * 30}deg)`,
-                      backgroundColor: `hsl(${i * 30}, 70%, 80%)`,
-                    }}
-                  >
-                    <span>{text}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="pointer" />
-              <div className="center-circle" onClick={startSpin}>
-                开始结束
+      {showWheel && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="relative">
+            {/* 指针 */}
+            <div className="absolute top-[-40px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-b-[30px] border-l-transparent border-r-transparent border-b-red-600 z-10" />
+
+            {/* 大转盘 */}
+            <svg
+              width={center * 2}
+              height={center * 2}
+              className="rotate-animation"
+              style={{ transform: `rotate(${rotation}deg)` }}
+            >
+              <g transform={`translate(${center},${center})`}>
+                {prizes.map((text, i) => {
+                  const startAngle = i * anglePerPrize;
+                  const endAngle = (i + 1) * anglePerPrize;
+                  const x1 = radius * Math.cos((startAngle * Math.PI) / 180);
+                  const y1 = radius * Math.sin((startAngle * Math.PI) / 180);
+                  const x2 = radius * Math.cos((endAngle * Math.PI) / 180);
+                  const y2 = radius * Math.sin((endAngle * Math.PI) / 180);
+
+                  const largeArc = anglePerPrize > 180 ? 1 : 0;
+                  const path = `M0,0 L${x1},${y1} A${radius},${radius} 0 ${largeArc},1 ${x2},${y2} Z`;
+
+                  const angle = (startAngle + endAngle) / 2;
+                  const textX =
+                    0.6 * radius * Math.cos((angle * Math.PI) / 180);
+                  const textY =
+                    0.6 * radius * Math.sin((angle * Math.PI) / 180);
+
+                  return (
+                    <g key={i}>
+                      <path
+                        d={path}
+                        fill={colors[i % colors.length]}
+                        stroke="#fff"
+                        strokeWidth="2"
+                      />
+                      <text
+                        x={textX}
+                        y={textY}
+                        transform={`rotate(${angle}, ${textX}, ${textY})`}
+                        textAnchor="middle"
+                        alignmentBaseline="middle"
+                        style={{ writingMode: "vertical-rl", fontSize: 14 }}
+                      >
+                        {text}
+                      </text>
+                    </g>
+                  );
+                })}
+              </g>
+            </svg>
+
+            {/* 中心按钮 */}
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              onClick={handleSpin}
+            >
+              <div className="w-20 h-20 rounded-full bg-white border-4 border-red-600 flex items-center justify-center text-lg font-bold cursor-pointer">
+                {spinning ? "结束" : "开始"}
               </div>
             </div>
-          </div>,
-          document.body
-        )}
+          </div>
+
+          <button
+            className="absolute top-4 right-4 text-white text-xl"
+            onClick={() => setShowWheel(false)}
+          >
+            ×
+          </button>
+        </div>
+      )}
     </>
   );
-};
-
-export default LotteryTurntable;
+}
