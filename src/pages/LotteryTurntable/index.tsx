@@ -20,6 +20,7 @@ const colors: string[] = [
 
 export function LotteryTurntable() {
   const [showWheel, setShowWheel] = useState<boolean>(false);
+  // 修正版本
   const [rotation, setRotation] = useState<number>(0);
   const [spinning, setSpinning] = useState<boolean>(false);
   const [btnPosition, setBtnPosition] = useState<{ x: number; y: number }>({
@@ -41,19 +42,15 @@ export function LotteryTurntable() {
     if (spinning) return;
     setSpinning(true);
     setWinner(null);
-
     // 随机目标索引
     const targetIndex = Math.floor(Math.random() * prizes.length);
     const realPrize = prizes[targetIndex];
-
-    // 目标奖项中间角度
+    const anglePerPrize = 360 / prizes.length;
     const prizeMiddleDegree = targetIndex * anglePerPrize + anglePerPrize / 2;
     const extraRounds = 5;
-    // +90 是因为指针在12点的位置，转盘指向0度默认在3点，所以加偏移
-    const finalRotation = extraRounds * 360 + (360 - prizeMiddleDegree + 90);
-
-    setRotation((prev) => prev + finalRotation);
-
+    const finalRotation =
+      extraRounds * 360 + (360 - prizeMiddleDegree + 90 + 180);
+    setRotation(finalRotation); // <==== 必须这样直接赋值，不能累计
     setTimeout(() => {
       setWinner(realPrize);
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
