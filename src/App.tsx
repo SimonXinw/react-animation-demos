@@ -2,6 +2,7 @@ import { Routes, Route, Link } from "react-router-dom";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import { InfiniteCarousel } from "./pages/InfiniteCarousel";
+import { LotteryTurntable } from "./pages/LotteryTurntable";
 
 const App: React.FC = () => (
   <div className="flex flex-col h-screen bg-gray-100">
@@ -32,6 +33,12 @@ const App: React.FC = () => (
         >
           InfiniteCarousel
         </Link>
+        <Link
+          to="/lottery-turntable"
+          className="text-blue-600 hover:text-blue-800 text-lg font-medium"
+        >
+          lottery-turntable
+        </Link>
       </nav>
 
       {/* Content Area */}
@@ -41,6 +48,7 @@ const App: React.FC = () => (
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/InfiniteCarousel" element={<InfiniteCarousel />} />
+            <Route path="/lottery-turntable" element={<LotteryTurntable />} />
           </Routes>
         </section>
       </main>
