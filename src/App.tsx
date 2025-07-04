@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import { InfiniteCarousel } from "./pages/InfiniteCarousel";
 import { LotteryTurntable } from "./pages/LotteryTurntable";
+import { MajoyScoreAnalysis } from "./pages/MajoyScoreAnalysis";
 
 const App: React.FC = () => (
   <div className="flex flex-col h-screen bg-gray-100">
@@ -39,6 +40,12 @@ const App: React.FC = () => (
         >
           lottery-turntable
         </Link>
+        <Link
+          to="/majoy-score-analysis"
+          className="text-blue-600 hover:text-blue-800 text-lg font-medium"
+        >
+          majoy-score-analysis
+        </Link>
       </nav>
 
       {/* Content Area */}
@@ -49,6 +56,10 @@ const App: React.FC = () => (
             <Route path="/about" element={<About />} />
             <Route path="/InfiniteCarousel" element={<InfiniteCarousel />} />
             <Route path="/lottery-turntable" element={<LotteryTurntable />} />
+            <Route
+              path="/majoy-score-analysis"
+              element={<MajoyScoreAnalysis />}
+            />
           </Routes>
         </section>
       </main>
