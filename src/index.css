@@ -1,1 +1,21 @@
 @import "tailwindcss";
+
+/* 应用壳全局基准：与 Tailwind 工具类一致，避免未设定时浏览器默认字距/底色突兀 */
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    @apply bg-slate-100 text-slate-900;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei",
+      sans-serif;
+  }
+
+  #root {
+    @apply min-h-screen;
+  }
+}
